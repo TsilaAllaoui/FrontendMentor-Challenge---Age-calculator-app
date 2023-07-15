@@ -23,16 +23,23 @@ function App() {
       span.style.color = "rgb(255,108,110)";
       return true;
     } else {
-      if (
-        monthInput.current!.value == "" &&
-        yearInput.current!.value == "" &&
-        parseInt(dayInput.current!.value) > 30
-      ) {
-        dayInput.current!.value = "30";
+      if (isNaN(Number(dayInput.current!.value))) {
+        setDaysError("Must be a valid day");
+        dayInput.current!.style.border = "solid 1.5px rgb(255,108,110)";
+        const span = dayInput.current!.previousSibling! as HTMLElement;
+        span.style.color = "rgb(255,108,110)";
+        return true;
       }
       if (
-        monthInput.current!.value == "" &&
-        yearInput.current!.value == "" &&
+        (monthInput.current!.value == "" ||
+          yearInput.current!.value == "") &&
+        parseInt(dayInput.current!.value) > new Date().getDate()
+      ) {
+        dayInput.current!.value = new Date().getDate().toString();
+      }
+      if (
+        (monthInput.current!.value == "" ||
+          yearInput.current!.value == "") &&
         parseInt(dayInput.current!.value) <= 0
       ) {
         dayInput.current!.value = "1";
@@ -46,8 +53,14 @@ function App() {
         parseInt(month),
         0
       ).getDate();
-      console.log(numberOfTotalDays);
+      console.log("---  : " + parseInt(monthInput.current!.value))
+      console.log("+++  : " + (new Date().getMonth() + 1))
 
+      if ((parseInt(monthInput.current!.value) == (new Date().getMonth() + 1)) &&
+        (parseInt(yearInput.current!.value) == (new Date().getFullYear()))) {
+        numberOfTotalDays = new Date().getDate();
+        console.log("****  " + numberOfTotalDays)
+      }
       if (parseInt(dayInput.current!.value) > numberOfTotalDays)
         dayInput.current!.value = numberOfTotalDays.toString();
       if (parseInt(dayInput.current!.value) <= 0) dayInput.current!.value = "1";
@@ -57,6 +70,7 @@ function App() {
       const span = dayInput.current!.previousSibling! as HTMLElement;
       span.style.color = "black";
       return false;
+
     }
   };
   const handleMonthChange = (
@@ -69,8 +83,20 @@ function App() {
       span.style.color = "rgb(255,108,110)";
       return true;
     } else {
-      if (parseInt(monthInput.current!.value) > 12)
-        monthInput.current!.value = "12";
+      if (isNaN(Number(monthInput.current!.value))) {
+        setMonthsError("Must be a valid month");
+        monthInput.current!.style.border = "solid 1.5px rgb(255,108,110)";
+        const span = monthInput.current!.previousSibling! as HTMLElement;
+        span.style.color = "rgb(255,108,110)";
+        return true;
+      }
+      let max = new Date().getMonth() + 1;
+      if (yearInput.current!.value != "" && yearInput.current!.value != (new Date().getFullYear()).toString()) {
+        max = 12;
+      }
+
+      if (parseInt(monthInput.current!.value) > max)
+        monthInput.current!.value = max.toString();
       if (parseInt(monthInput.current!.value) <= 0)
         monthInput.current!.value = "1";
 
@@ -89,6 +115,13 @@ function App() {
       span.style.color = "rgb(255,108,110)";
       return true;
     } else {
+      if (isNaN(Number(yearInput.current!.value))) {
+        setYearsError("Must be a valid year");
+        yearInput.current!.style.border = "solid 1.5px rgb(255,108,110)";
+        const span = yearInput.current!.previousSibling! as HTMLElement;
+        span.style.color = "rgb(255,108,110)";
+        return true;
+      }
       if (
         parseInt(yearInput.current!.value) > new Date().getFullYear() ||
         parseInt(yearInput.current!.value) <= 0
@@ -107,6 +140,8 @@ function App() {
     let isErrorDays = handleDayChange(null);
     let isErrorMonths = handleMonthChange(null);
     let isErrorYears = handleYearChange(null);
+
+    console.log(days)
 
     if (isErrorDays || isErrorMonths || isErrorYears) {
       setDays("--");
@@ -145,7 +180,7 @@ function App() {
         <div className="input">
           <label>DAY</label>
           <input
-            type="number"
+            type="text"
             ref={dayInput}
             placeholder="DD"
             onChange={handleDayChange}
@@ -155,7 +190,7 @@ function App() {
         <div className="input">
           <label>MONTH</label>
           <input
-            type="number"
+            type="text"
             ref={monthInput}
             placeholder="MM"
             onChange={handleMonthChange}
@@ -165,7 +200,7 @@ function App() {
         <div className="input">
           <label>YEAR</label>
           <input
-            type="number"
+            type="text"
             ref={yearInput}
             placeholder="YYYY"
             onChange={handleYearChange}
